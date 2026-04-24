@@ -201,31 +201,84 @@ export const remainingLifeData = Array.from({ length: 162 }, (_, i) => ({
   predicted: Math.max(0, 100 - i * 0.52 + Math.random() * 3)
 }))
 
-// 运维反馈数据
-export const operationFeedbackData = Array.from({ length: 14 }, (_, i) => ({
-  id: String(i + 1).padStart(3, '0'),
-  unitName: '机组1',
-  partName: '轮毂',
-  faultDesc: '无',
-  faultLevel: '预警',
-  faultTag: '轮毂温度',
-  faultSource: '机预测模型',
-  time: '2023-05-21 9:30:11',
-  status: '已修复',
-  strategy: '点击查看'
-}))
+// // 运维反馈数据
+// export const operationFeedbackData = Array.from({ length: 14 }, (_, i) => ({
+//   id: String(i + 1).padStart(3, '0'),
+//   unitName: '机组1',
+//   partName: '轮毂',
+//   faultDesc: '无',
+//   faultLevel: '预警',
+//   faultTag: '轮毂温度',
+//   faultSource: '机预测模型',
+//   time: '2026-04-20 9:30:11',
+//   status: '已修复',
+//   strategy: '点击查看'
+// }))
 
-// 数据管理表格数据
-export const dataManagementData = Array.from({ length: 17 }, (_, i) => ({
-  time: '2023-05-21 9:30:11',
-  powerSystem: '无',
-  controlSystem: '无',
-  totalPower: '无',
-  atmosphericPressure: '无',
-  outdoorTemp: '无',
-  airDensity: '无',
-  windSpeed: '无'
-}))
+// // 数据管理表格数据
+// export const dataManagementData = Array.from({ length: 17 }, (_, i) => ({
+//   time: '2026-04-20 9:30:11',
+//   powerSystem: '无',
+//   controlSystem: '无',
+//   totalPower: '无',
+//   atmosphericPressure: '无',
+//   outdoorTemp: '无',
+//   airDensity: '无',
+//   windSpeed: '无'
+// }))
+
+
+// 模拟数据生成辅助函数
+const getRandomItem = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+
+// 风机常见部件
+const parts = ['轮毂', '叶片', '发电机', '齿轮箱', '偏航系统', '变桨系统', '主控系统', '塔基'];
+// 故障等级
+const levels = ['预警', '一般', '严重', '紧急'];
+// 故障标签
+const tags = ['温度异常', '振动超标', '压力异常', '通讯中断', '电压波动', '转速异常'];
+// 故障来源
+const sources = ['机预测模型', '现场巡检', 'SCADA系统', '振动监测', '人工上报'];
+// 状态
+const statuses = ['待处理', '处理中', '已修复', '已忽略'];
+// 故障描述模板
+const descs = [
+  '{part}温度超过阈值，当前值{val}℃',
+  '{part}振动值达到{val}mm/s，需关注',
+  '{part}通讯间歇性中断',
+  '{part}压力波动范围超出正常区间',
+  '{part}转速不稳定，偏差{val}%'
+];
+
+
+// 生成19个机组的完整数据
+export const operationFeedbackData = Array.from({ length: 19 }, (_, unitIndex) => {
+  const unitId = unitIndex + 1;
+  // 每个机组生成 3-8 条随机数据
+  const recordCount = 14;
+  
+  return Array.from({ length: recordCount }, (_, recordIndex) => {
+    const part = getRandomItem(parts);
+    const level = getRandomItem(levels);
+    const tag = getRandomItem(tags);
+    const source = getRandomItem(sources);
+    const status = getRandomItem(statuses);
+    const val = (Math.random() * 100).toFixed(1);
+    
+    return {
+      id: `${String(unitId).padStart(2, '0')}${String(recordIndex + 1).padStart(2, '0')}`,
+      unitName: `机组${unitId}`,
+      partName: part,
+      faultDesc: descs[Math.floor(Math.random() * descs.length)].replace('{part}', part).replace('{val}', val),
+      faultLevel: level,
+      faultTag: tag,
+      faultSource: source,
+      time: `2026-04-${15 + Math.floor(Math.random() * 10)} ${8 + Math.floor(Math.random() * 12)}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+      status: status,
+      strategy: '点击查看'
+    };
+  });
+}).flat(); // 扁平化数组
 
 // 24小时风速功率数据
 export const hourlyWindPowerData = Array.from({ length: 24 }, (_, i) => ({
@@ -233,23 +286,3 @@ export const hourlyWindPowerData = Array.from({ length: 24 }, (_, i) => ({
   windSpeed: 3 + Math.random() * 11,
   power: 500 + Math.random() * 2500
 }))
-
-// 风机地图位置
-export const fanMapPositions = [
-  { id: 1, x: 15, y: 20 },
-  { id: 2, x: 25, y: 35 },
-  { id: 3, x: 35, y: 25 },
-  { id: 4, x: 45, y: 40 },
-  { id: 5, x: 55, y: 20 },
-  { id: 6, x: 65, y: 35 },
-  { id: 7, x: 75, y: 25 },
-  { id: 8, x: 20, y: 55 },
-  { id: 9, x: 35, y: 60 },
-  { id: 10, x: 50, y: 55 },
-  { id: 11, x: 65, y: 60 },
-  { id: 12, x: 30, y: 75 },
-  { id: 13, x: 45, y: 80 },
-  { id: 14, x: 60, y: 75 },
-  { id: 15, x: 75, y: 80 },
-  { id: 16, x: 85, y: 50 }
-]

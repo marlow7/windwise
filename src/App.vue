@@ -95,7 +95,7 @@ const handleMenuSelect = (path: string) => {
 
 .app-header {
   height: 60px;
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  background-color: #3b82f6;
   display: flex;
   align-items: center;
   justify-content: space-between;

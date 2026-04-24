@@ -271,6 +271,48 @@ const initWarningLevelChart = () => {
   warningLevelChart.setOption(option)
 }
 
+// 新增：地图背景拖动初始化函数
+const initMapDrag = () => {
+  const container = document.querySelector<HTMLElement>('.map-container');
+  const bg = document.querySelector<HTMLElement>('.map-bg');
+
+  if (!container || !bg) return;
+
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  let currentX = 0;
+  let currentY = 0;
+
+  // 开始拖动
+  container.addEventListener('mousedown', (e: MouseEvent) => {
+    isDragging = true;
+    startX = e.clientX - currentX;
+    startY = e.clientY - currentY;
+  });
+
+  // 拖动中
+  container.addEventListener('mousemove', (e: MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+
+    currentX = e.clientX - startX;
+    currentY = e.clientY - startY;
+
+    // 边界限制
+    const maxX = container.clientWidth - bg.offsetWidth;
+    const maxY = container.clientHeight - bg.offsetHeight;
+    currentX = Math.min(Math.max(currentX, maxX), 0);
+    currentY = Math.min(Math.max(currentY, maxY), 0);
+
+    bg.style.transform = `translate(${currentX}px, ${currentY}px)`;
+  });
+
+  // 结束拖动
+  window.addEventListener('mouseup', () => isDragging = false);
+  container.addEventListener('mouseleave', () => isDragging = false);
+};
+
 // 窗口大小变化时重绘图表
 const handleResize = () => {
   statusPieChart?.resize()
@@ -286,6 +328,7 @@ onMounted(() => {
   initMonthlyPowerChart()
   initStatusTop5Chart()
   initWarningLevelChart()
+  initMapDrag();
   window.addEventListener('resize', handleResize)
 })
 
@@ -381,18 +424,6 @@ onUnmounted(() => {
         <div class="card-title">风电场分布</div>
         <div class="map-container">
           <div class="map-bg">
-            <!-- 风机图标 -->
-            <div
-              v-for="fan in fanMapPositions"
-              :key="fan.id"
-              class="fan-icon"
-              :style="{ left: fan.x + '%', top: fan.y + '%' }"
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
-              </svg>
-              <span class="fan-label">{{ fan.id }}</span>
-            </div>
           </div>
         </div>
       </div>
@@ -719,43 +750,28 @@ onUnmounted(() => {
 .map-container {
   width: 100%;
   height: calc(100% - 40px);
+  /* 新增核心样式：相对定位+隐藏溢出+拖动鼠标样式 */
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  border-radius: 8px;
+}
+
+/* 鼠标按下时的抓取样式 */
+.map-container:active {
+  cursor: grabbing;
 }
 
 .map-bg {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #e0f2fe 100%);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.fan-icon {
+  /* 核心修改：绝对定位*/
   position: absolute;
-  width: 30px;
-  height: 30px;
-  transform: translate(-50%, -50%);
-  color: #3b82f6;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  transition: transform 0.3s;
-}
-
-.fan-icon:hover {
-  transform: translate(-50%, -50%) scale(1.2);
-}
-
-.fan-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.fan-label {
-  font-size: 10px;
-  color: #1f2937;
-  font-weight: 500;
+  top: 0;
+  left: 0;
+  width: 1865px;
+  height: 745px;
+  background: url('@/assets/fans.png') no-repeat center center;
+  transition: transform 0.1s ease;
+  user-select: none; /* 禁止选中元素 */
 }
 
 /* 预警仪表盘 */

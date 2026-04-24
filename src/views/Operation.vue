@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { operationFeedbackData } from '@/data'
 
 // 当前选中的机组
@@ -7,12 +7,25 @@ const selectedUnit = ref(1)
 const units = Array.from({ length: 19 }, (_, i) => i + 1)
 
 // 表格数据
-const tableData = operationFeedbackData
+const tableData = computed(() => {
+  return operationFeedbackData.filter(item => item.unitName === `机组${selectedUnit.value}`);
+});
 
 // 查看运维策略
-const viewStrategy = (row: typeof tableData[0]) => {
+const viewStrategy = (row: typeof tableData.value[0]) => {
   console.log('查看运维策略:', row)
 }
+
+// 根据故障等级返回对应的 CSS 类名
+const getLevelClass = (level: string) => {
+  const map: Record<string, string> = {
+    '预警': 'level-warning',
+    '一般': 'level-normal',
+    '严重': 'level-serious',
+    '紧急': 'level-critical'
+  };
+  return map[level] || '';
+};
 </script>
 
 <template>
@@ -60,7 +73,15 @@ const viewStrategy = (row: typeof tableData[0]) => {
                 <td>{{ row.unitName }}</td>
                 <td>{{ row.partName }}</td>
                 <td>{{ row.faultDesc }}</td>
-                <td><span class="fault-level">{{ row.faultLevel }}</span></td>
+                <td>
+  <!-- 核心：通过 :class 动态绑定颜色类名 -->
+  <span 
+    class="fault-level" 
+    :class="getLevelClass(row.faultLevel)"
+  >
+    {{ row.faultLevel }}
+  </span>
+</td>
                 <td>{{ row.faultTag }}</td>
                 <td>{{ row.faultSource }}</td>
                 <td>{{ row.time }}</td>
@@ -198,13 +219,41 @@ const viewStrategy = (row: typeof tableData[0]) => {
   background: #f9fafb;
 }
 
+/* 基础样式（所有等级共用） */
 .fault-level {
   display: inline-block;
   padding: 2px 8px;
   font-size: 11px;
-  color: #ef4444;
-  background: #fef2f2;
   border-radius: 4px;
+  font-weight: 500;
+}
+
+/* 预警 - 橙色 */
+.fault-level.level-warning {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+}
+
+/* 一般 - 蓝色 */
+.fault-level.level-normal {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+/* 严重 - 红色 */
+.fault-level.level-serious {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* 紧急 - 深红背景 */
+.fault-level.level-critical {
+  background: #ee4545;
+  color: #ffffff;
+  border: 1px solid #ee4545;
 }
 
 .status-tag {
