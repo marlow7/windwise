@@ -1,0 +1,59 @@
+name: 部署项目到GitHub Pages
+
+on:
+  # 监听main分支的push事件，只要push代码就自动执行
+  push:
+    branches: [ "main" ]
+  # 允许手动在Actions页面触发部署
+  workflow_dispatch:
+
+# 设置GITHUB_TOKEN的权限，允许部署Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 只允许一个并发部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # 打包构建
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: 安装pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: true
+
+      - name: 打包项目
+        run: pnpm build
+
+      - name: 上传构建产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  # 部署到GitHub Pages
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: 部署到Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
