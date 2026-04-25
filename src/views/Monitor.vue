@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import * as echarts from 'echarts'
 import { unitMonitorParams, diagnosisData, remainingLifeData, hourlyWindPowerData } from '@/data'
+import { nextTick } from 'vue'
 
 // 当前选中的机组
 const selectedUnit = ref(1)
@@ -132,6 +133,12 @@ onMounted(() => {
   initWindPowerChart()
   initRemainingLifeChart()
   window.addEventListener('resize', handleResize)
+
+    // 初始化后立刻调用一次 resize，让图表按当前容器尺寸渲染
+  nextTick(() => {
+    windPowerChart?.resize()
+    remainingLifeChart?.resize()
+  })
 })
 
 onUnmounted(() => {
@@ -166,96 +173,215 @@ onUnmounted(() => {
         <div class="card-title">机组监控</div>
         
         <div class="system-params">
-          <div class="param-group">
-            <div class="group-title">控制系统</div>
-            <div class="param-grid">
-              <div class="param-item">
-                <span class="param-label">大气压力</span>
-                <span class="param-value">{{ unitMonitorParams.control.atmosphericPressure }} bar</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">室外温度</span>
-                <span class="param-value">{{ unitMonitorParams.control.outdoorTemp }}℃</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">空气密度</span>
-                <span class="param-value">{{ unitMonitorParams.control.airDensity }} kg/m³</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">风速</span>
-                <span class="param-value">{{ unitMonitorParams.control.windSpeed }} m/s</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="param-group">
-            <div class="group-title">齿轮箱</div>
-            <div class="param-grid">
-              <div class="param-item">
-                <span class="param-label">扭矩传递比</span>
-                <span class="param-value">{{ unitMonitorParams.gearbox.torqueRatio }}</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">齿轮箱效率</span>
-                <span class="param-value">{{ unitMonitorParams.gearbox.efficiency }}%</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">齿轮箱油温</span>
-                <span class="param-value">{{ unitMonitorParams.gearbox.oilTemp }}℃</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">齿轮箱额定转速</span>
-                <span class="param-value">{{ unitMonitorParams.gearbox.ratedRpm }} rpm</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="param-group">
-            <div class="group-title">变桨系统</div>
-            <div class="param-grid">
-              <div class="param-item">
-                <span class="param-label">轮毂温度</span>
-                <span class="param-value">{{ unitMonitorParams.pitch.hubTemp }}℃</span>
+          <div class="params-columns">
+            <!-- 控制系统 -->
+            <div class="param-column">
+              <div class="column-header">控制系统</div>
+              <div class="column-items">
+                <div class="param-item">
+                  <span class="param-label">大气压力</span>
+                  <span class="param-value">{{ unitMonitorParams.control.atmosphericPressure }} bar</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">室外温度</span>
+                  <span class="param-value">{{ unitMonitorParams.control.outdoorTemp }}℃</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">空气密度</span>
+                  <span class="param-value">{{ unitMonitorParams.control.airDensity }} kg/m³</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">风速</span>
+                  <span class="param-value">{{ unitMonitorParams.control.windSpeed }} m/s</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">风向</span>
+                  <span class="param-value">{{ unitMonitorParams.control.windDirection }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">湿度</span>
+                  <span class="param-value">{{ unitMonitorParams.control.humidity }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">降雨量</span>
+                  <span class="param-value">{{ unitMonitorParams.control.rainfall }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">电网电压</span>
+                  <span class="param-value">{{ unitMonitorParams.control.gridVoltage }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">电网频率</span>
+                  <span class="param-value">{{ unitMonitorParams.control.gridFrequency }}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="param-group">
-            <div class="group-title">偏航系统</div>
-            <div class="param-grid">
-              <div class="param-item">
-                <span class="param-label">偏航速度</span>
-                <span class="param-value">{{ unitMonitorParams.yaw.yawSpeed }}°/s</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">偏航次数</span>
-                <span class="param-value">{{ unitMonitorParams.yaw.yawCount }} 次</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">偏航变频频率</span>
-                <span class="param-value">{{ unitMonitorParams.yaw.yawFreq }} Hz</span>
+            <!-- 齿轮箱 -->
+            <div class="param-column">
+              <div class="column-header">齿轮箱</div>
+              <div class="column-items">
+                <div class="param-item">
+                  <span class="param-label">扭矩传递比</span>
+                  <span class="param-value">{{ unitMonitorParams.gearbox.torqueRatio }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">齿轮箱效率</span>
+                  <span class="param-value">{{ unitMonitorParams.gearbox.efficiency }}%</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">齿轮箱油温</span>
+                  <span class="param-value">{{ unitMonitorParams.gearbox.oilTemp }}℃</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">齿轮箱额定转速</span>
+                  <span class="param-value">{{ unitMonitorParams.gearbox.ratedRpm }} rpm</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">输入转速</span>
+                  <span class="param-value">{{ unitMonitorParams.gearbox.inputSpeed }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">输出转速</span>
+                  <span class="param-value">{{ unitMonitorParams.gearbox.outputSpeed }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">机油压力</span>
+                  <span class="param-value">{{ unitMonitorParams.gearbox.oilPressure }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">油位</span>
+                  <span class="param-value">{{ unitMonitorParams.gearbox.oilLevel }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">X向振动</span>
+                  <span class="param-value">{{ unitMonitorParams.gearbox.vibrationX }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">Y向振动</span>
+                  <span class="param-value">{{ unitMonitorParams.gearbox.vibrationY }}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="param-group">
-            <div class="group-title">风力发电机</div>
-            <div class="param-grid">
-              <div class="param-item">
-                <span class="param-label">发电机运行前风</span>
-                <span class="param-value">{{ unitMonitorParams.generator.frontWindTemp }}℃</span>
+            <!-- 变桨系统 -->
+            <div class="param-column">
+              <div class="column-header">变桨系统</div>
+              <div class="column-items">
+                <div class="param-item">
+                  <span class="param-label">轮毂温度</span>
+                  <span class="param-value">{{ unitMonitorParams.pitch.hubTemp }}℃</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">变桨角度A</span>
+                  <span class="param-value">{{ unitMonitorParams.pitch.pitchAngleA }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">变桨角度B</span>
+                  <span class="param-value">{{ unitMonitorParams.pitch.pitchAngleB }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">变桨角度C</span>
+                  <span class="param-value">{{ unitMonitorParams.pitch.pitchAngleC }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">桨机A温度</span>
+                  <span class="param-value">{{ unitMonitorParams.pitch.pitchMotorTempA }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">桨机B温度</span>
+                  <span class="param-value">{{ unitMonitorParams.pitch.pitchMotorTempB }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">桨机C温度</span>
+                  <span class="param-value">{{ unitMonitorParams.pitch.pitchMotorTempC }}</span>
+                </div>
               </div>
-              <div class="param-item">
-                <span class="param-label">发电机运行后风</span>
-                <span class="param-value">{{ unitMonitorParams.generator.rearWindTemp }}℃</span>
+            </div>
+
+            <!-- 偏航系统 -->
+            <div class="param-column">
+              <div class="column-header">偏航系统</div>
+              <div class="column-items">
+                <div class="param-item">
+                  <span class="param-label">偏航速度</span>
+                  <span class="param-value">{{ unitMonitorParams.yaw.yawSpeed }}°/s</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">偏航次数</span>
+                  <span class="param-value">{{ unitMonitorParams.yaw.yawCount }} 次</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">偏航变频频率</span>
+                  <span class="param-value">{{ unitMonitorParams.yaw.yawFreq }} Hz</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">偏航角度</span>
+                  <span class="param-value">{{ unitMonitorParams.yaw.yawAngle }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">偏航电机温度</span>
+                  <span class="param-value">{{ unitMonitorParams.yaw.yawMotorTemp }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">偏航扭矩</span>
+                  <span class="param-value">{{ unitMonitorParams.yaw.yawTorque }}</span>
+                </div>
               </div>
-              <div class="param-item">
-                <span class="param-label">发电机运行前风压力</span>
-                <span class="param-value">{{ unitMonitorParams.generator.frontWindPressure }} bar</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">发电机运行后风压力</span>
-                <span class="param-value">{{ unitMonitorParams.generator.rearWindPressure }} bar</span>
+            </div>
+
+            <!-- 风力发电机 -->
+            <div class="param-column">
+              <div class="column-header">风力发电机</div>
+              <div class="column-items">
+                <div class="param-item">
+                  <span class="param-label">发电机运行前风</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.frontWindTemp }}℃</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">发电机运行后风</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.rearWindTemp }}℃</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">发电机运行前风压力</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.frontWindPressure }} bar</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">发电机运行后风压力</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.rearWindPressure }} bar</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">定子A温度</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.statorTempA }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">定子B温度</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.statorTempB }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">定子C温度</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.statorTempC }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">转子温度</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.rotorTemp }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">前轴承温度</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.bearingTempFront }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">后轴承温度</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.bearingTempRear }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">输出功率</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.outputPower }}</span>
+                </div>
+                <div class="param-item">
+                  <span class="param-label">输出电流</span>
+                  <span class="param-value">{{ unitMonitorParams.generator.outputCurrent }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -285,6 +411,14 @@ onUnmounted(() => {
           <div class="diagnosis-item">
             <span class="diagnosis-name">发电机绕组温度</span>
             <span class="diagnosis-status">模型停用中</span>
+          </div>
+          <div class="diagnosis-item">
+            <span class="diagnosis-name">齿轮箱振动</span>
+            <span class="diagnosis-status">模型运行中</span>
+          </div>
+          <div class="diagnosis-item">
+            <span class="diagnosis-name">变桨系统状态</span>
+            <span class="diagnosis-status">模型运行中</span>
           </div>
         </div>
 
@@ -343,13 +477,14 @@ onUnmounted(() => {
 
 /* 中间/右侧区域：撑满高度 */
 .monitor-center {
-  flex: 1;
+  flex: 1.2;
   height: 100%;
   overflow: hidden;
 }
 .monitor-right {
-  width: 320px;
-  flex-shrink: 0;
+  /* width: 320px; */
+  flex: 1.2;
+  /* flex-shrink: 0; */
   height: 100%;
   overflow-y: auto;
 }
@@ -439,6 +574,10 @@ onUnmounted(() => {
   margin-top: 16px;
   border-top: 1px solid #e5e7eb;
   padding-top: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* 解决 flex 下的内容溢出问题 */
 }
 
 .chart-title {
@@ -448,7 +587,7 @@ onUnmounted(() => {
   margin-bottom: 12px;
 }
 
-.chart-container { width: 100%; height: 200px; }
+.chart-container { width: 100%; height: 100%; }
 
 .diagnosis-list { margin-bottom: 16px; }
 
@@ -485,4 +624,78 @@ onUnmounted(() => {
 .result-label { font-size: 11px; color: #6b7280; }
 .result-value { font-size: 14px; font-weight: 500; color: #1f2937; }
 .result-value.safe { color: #22c55e; }
+
+
+/* 横向多列布局 */
+.system-params {
+  flex: 1;
+  overflow: auto;
+}
+
+.params-columns {
+  display: flex;
+  height: 100%; 
+}
+
+.param-column {
+  flex: 1;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column; 
+  overflow: hidden; /* 超出部分隐藏 */
+}
+
+.column-header {
+  padding: 8px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
+  background: transparent;
+}
+
+.column-items {
+  padding: 8px;
+  flex: 1;
+  overflow-y: auto; /* 超出可滚动 */
+  /* 隐藏滚动条 */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.column-items::-webkit-scrollbar {
+  display: none;
+}
+
+.param-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 4px;
+  border-bottom: 1px dashed #e5e7eb;
+  font-size: 12px;
+}
+
+.param-item:last-child {
+  border-bottom: none;
+}
+
+.param-label {
+  color: #6b7280;
+}
+
+.param-value {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.more-btn {
+  padding: 6px;
+  text-align: center;
+  font-size: 12px;
+  color: #3b82f6;
+  border-top: 1px solid #e5e7eb;
+  cursor: pointer;
+}
 </style>

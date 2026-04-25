@@ -154,42 +154,94 @@ export const performanceData = {
   pert: [0.78, 0.85, 0.82, 0.90]
 }
 
-// 机组监控参数
+// 机组监控参数（扩充大量真实数据）
 export const unitMonitorParams = {
   control: {
     atmosphericPressure: '1.015',
     outdoorTemp: '14.90',
     airDensity: '1.225',
-    windSpeed: '4.83'
+    windSpeed: '4.83',
+    windDirection: '225.6°',
+    humidity: '58.2%',
+    rainfall: '0.0 mm',
+    gridVoltage: '690.0 V',
+    gridFrequency: '50.0 Hz'
   },
   gearbox: {
     torqueRatio: '3',
     efficiency: '97.13',
     oilTemp: '46.72',
-    ratedRpm: '1302.70'
+    ratedRpm: '1302.70',
+    inputSpeed: '18.5 rpm',
+    outputSpeed: '1298.4 rpm',
+    oilPressure: '3.21 bar',
+    oilLevel: '68.5%',
+    vibrationX: '2.1 mm/s',
+    vibrationY: '1.8 mm/s'
   },
   pitch: {
-    hubTemp: '86.8'
+    hubTemp: '86.8',
+    pitchAngleA: '2.5°',
+    pitchAngleB: '2.3°',
+    pitchAngleC: '2.4°',
+    pitchMotorTempA: '72.3℃',
+    pitchMotorTempB: '71.8℃',
+    pitchMotorTempC: '72.5℃'
   },
   yaw: {
-    yawSpeed: '0.00',
+    yawSpeed: '0.00°/s',
     yawCount: '1',
-    yawFreq: '0.00'
+    yawFreq: '0.00 Hz',
+    yawAngle: '178.3°',
+    yawMotorTemp: '56.7℃',
+    yawTorque: '12800 N·m'
   },
   generator: {
-    frontWindTemp: '395.72',
-    rearWindTemp: '415.72',
-    frontWindPressure: '3.14',
-    rearWindPressure: '6.17'
+    frontWindTemp: '39.72',
+    rearWindTemp: '41.72',
+    frontWindPressure: '3.14 bar',
+    rearWindPressure: '6.17 bar',
+    statorTempA: '78.2℃',
+    statorTempB: '77.9℃',
+    statorTempC: '78.5℃',
+    rotorTemp: '82.1℃',
+    bearingTempFront: '52.3℃',
+    bearingTempRear: '54.8℃',
+    outputPower: '685.2 kW',
+    outputCurrent: '620.1 A'
+  },
+  tower: {
+    towerVibration: '0.32 mm/s',
+    towerInclination: '0.08°',
+    doorStatus: 'closed',
+    lightingStatus: 'on'
   }
 }
 
-// 诊断分析数据
+// 诊断分析数据（扩充更多监测点）
 export const diagnosisData = {
   mainBearingTemp: {
     current: '70',
     predict30min: '85',
     predict60min: '75',
+    isOverLimit: '否'
+  },
+  gearboxVibration: {
+    current: '2.1 mm/s',
+    predict30min: '2.3 mm/s',
+    predict60min: '2.5 mm/s',
+    isOverLimit: '否'
+  },
+  generatorBearing: {
+    current: '54.8℃',
+    predict30min: '57.2℃',
+    predict60min: '59.5℃',
+    isOverLimit: '否'
+  },
+  pitchSystem: {
+    current: '正常',
+    predict30min: '正常',
+    predict60min: '正常',
     isOverLimit: '否'
   }
 }
@@ -201,31 +253,17 @@ export const remainingLifeData = Array.from({ length: 162 }, (_, i) => ({
   predicted: Math.max(0, 100 - i * 0.52 + Math.random() * 3)
 }))
 
-// // 运维反馈数据
-// export const operationFeedbackData = Array.from({ length: 14 }, (_, i) => ({
-//   id: String(i + 1).padStart(3, '0'),
-//   unitName: '机组1',
-//   partName: '轮毂',
-//   faultDesc: '无',
-//   faultLevel: '预警',
-//   faultTag: '轮毂温度',
-//   faultSource: '机预测模型',
-//   time: '2026-04-20 9:30:11',
-//   status: '已修复',
-//   strategy: '点击查看'
-// }))
-
-// // 数据管理表格数据
-// export const dataManagementData = Array.from({ length: 17 }, (_, i) => ({
-//   time: '2026-04-20 9:30:11',
-//   powerSystem: '无',
-//   controlSystem: '无',
-//   totalPower: '无',
-//   atmosphericPressure: '无',
-//   outdoorTemp: '无',
-//   airDensity: '无',
-//   windSpeed: '无'
-// }))
+// 数据管理表格数据
+export const dataManagementData = Array.from({ length: 30 }, (_, i) => ({
+  time: `2026-04-${String(15 + Math.floor(Math.random() * 10)).padStart(2, '0')} ${String(8 + Math.floor(Math.random() * 12)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+  powerSystem: (Math.random() * 1000).toFixed(1) + 'kW',
+  controlSystem: (Math.random() * 100).toFixed(1) + '%',
+  totalPower: (Math.random() * 5000).toFixed(1) + 'kWh',
+  atmosphericPressure: (1000 + Math.random() * 50).toFixed(1) + 'hPa',
+  outdoorTemp: (-10 + Math.random() * 40).toFixed(1) + '℃',
+  airDensity: (1.0 + Math.random() * 0.5).toFixed(2) + 'kg/m³',
+  windSpeed: (0 + Math.random() * 25).toFixed(1) + 'm/s'
+}))
 
 
 // 模拟数据生成辅助函数

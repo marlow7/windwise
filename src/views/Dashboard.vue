@@ -11,7 +11,6 @@ import {
   warningLevelData,
   powerStatsData,
   windPowerData,
-  fanMapPositions
 } from '@/data'
 
 // 图表实例
